@@ -101,9 +101,13 @@ public class PlanExecutorNode implements NodeAction {
 
 		boolean isOnlyNl2Sql = state.value(IS_ONLY_NL2SQL, false);
 
+		log.info("[PlanExecutorNode] currentStep={}, isOnlyNl2Sql={}, executionPlanTools={}", currentStep, isOnlyNl2Sql,
+				executionPlan.stream().map(ExecutionStep::getToolToUse).toList());
+
 		// Check if the plan is completed
 		if (currentStep > executionPlan.size()) {
-			log.info("Plan completed, current step: {}, total steps: {}", currentStep, executionPlan.size());
+			log.info("[PlanExecutorNode] Plan completed, current step: {}, total steps: {}", currentStep,
+					executionPlan.size());
 			return Map.of(PLAN_CURRENT_STEP, 1, PLAN_NEXT_NODE, isOnlyNl2Sql ? StateGraph.END : REPORT_GENERATOR_NODE,
 					PLAN_VALIDATION_STATUS, true);
 		}
@@ -111,6 +115,7 @@ public class PlanExecutorNode implements NodeAction {
 		// Get current step and determine next node
 		ExecutionStep executionStep = executionPlan.get(currentStep - 1);
 		String toolToUse = executionStep.getToolToUse();
+		log.info("[PlanExecutorNode] Selecting tool '{}' for step {}", toolToUse, currentStep);
 
 		return determineNextNode(toolToUse);
 	}
