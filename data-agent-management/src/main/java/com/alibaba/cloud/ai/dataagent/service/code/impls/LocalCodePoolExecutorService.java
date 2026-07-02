@@ -104,7 +104,9 @@ public class LocalCodePoolExecutorService extends AbstractCodePoolExecutorServic
 		// 如果有requirements，则先安装依赖
 		if (this.pipExecutable != null && StringUtils.hasText(request.requirement())) {
 			ProcessBuilder pip = new ProcessBuilder(this.pipExecutable, "install", "--no-cache-dir", "-r",
-					requirementFile.toAbsolutePath().toString(), ">", "/dev/null");
+					requirementFile.toAbsolutePath().toString());
+			pip.redirectOutput(ProcessBuilder.Redirect.DISCARD);
+			pip.redirectError(ProcessBuilder.Redirect.DISCARD);
 			Process process = null;
 
 			try {
