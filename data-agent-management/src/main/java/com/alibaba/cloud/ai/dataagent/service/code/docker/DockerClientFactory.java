@@ -34,6 +34,10 @@ public class DockerClientFactory {
 	private final DockerClientConnector connector;
 
 	public DockerClient create(List<String> candidateHosts) {
+		return connect(candidateHosts).client();
+	}
+
+	public DockerConnection connect(List<String> candidateHosts) {
 		if (candidateHosts == null || candidateHosts.isEmpty()) {
 			throw new IllegalArgumentException("At least one Docker host candidate is required");
 		}
@@ -45,7 +49,7 @@ public class DockerClientFactory {
 				client = connector.connect(host);
 				client.pingCmd().exec();
 				log.info("Connected to Docker using {}", host);
-				return client;
+				return new DockerConnection(client, host);
 			}
 			catch (RuntimeException exception) {
 				lastFailure = exception;
@@ -56,6 +60,9 @@ public class DockerClientFactory {
 
 		throw new IllegalStateException("Failed to connect to Docker. Attempted hosts: " + candidateHosts,
 				lastFailure);
+	}
+
+	public record DockerConnection(DockerClient client, String host) {
 	}
 
 	private void closeFailedClient(DockerClient client, RuntimeException connectionFailure) {
