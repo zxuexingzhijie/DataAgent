@@ -29,8 +29,7 @@ class ExecutionTimeoutParserTest {
 	private final ExecutionTimeoutParser parser = new ExecutionTimeoutParser();
 
 	@ParameterizedTest
-	@CsvSource({ "500ms,500", "0s,0", "30s,30000", "2m,120000", "1h,3600000", "1d,86400000",
-			"100S,100000" })
+	@CsvSource({ "500ms,500", "0s,0", "30s,30000", "2m,120000", "1h,3600000", "1d,86400000", "100S,100000" })
 	void parse_validValue_returnsMilliseconds(String value, long expected) {
 		assertEquals(expected, parser.parse(value));
 	}

@@ -126,9 +126,10 @@ class AbstractDBConnectionPoolTest {
 
 	@Test
 	void getConnection_interruptedBackoff_restoresInterruptAndStopsRetrying() throws SQLException {
-		TestableDBConnectionPool interruptedPool = new TestableDBConnectionPool(new ConnectionRetryPolicy(3, ignored -> {
-			throw new InterruptedException("cancelled");
-		}));
+		TestableDBConnectionPool interruptedPool = new TestableDBConnectionPool(
+				new ConnectionRetryPolicy(3, ignored -> {
+					throw new InterruptedException("cancelled");
+				}));
 		DataSource failingDataSource = mock(DataSource.class);
 		when(failingDataSource.getConnection()).thenThrow(new SQLException("unavailable"));
 		interruptedPool.useDataSource(failingDataSource);

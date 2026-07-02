@@ -30,15 +30,12 @@ class DockerHostResolverTest {
 
 	@Test
 	void candidates_explicitUnixHost_keepsOnlyConfiguredHost() {
-		assertEquals(List.of("tcp://docker.example:2375"),
-				resolver.candidates("tcp://docker.example:2375", "Linux"));
+		assertEquals(List.of("tcp://docker.example:2375"), resolver.candidates("tcp://docker.example:2375", "Linux"));
 	}
 
 	@Test
 	void candidates_explicitWindowsHost_keepsFallbacksWithoutDuplicates() {
-		assertEquals(
-				List.of("tcp://docker.example:2375", "npipe://./pipe/docker_engine",
-						"tcp://localhost:2375"),
+		assertEquals(List.of("tcp://docker.example:2375", "npipe://./pipe/docker_engine", "tcp://localhost:2375"),
 				resolver.candidates("tcp://docker.example:2375", "Windows 11"));
 	}
 

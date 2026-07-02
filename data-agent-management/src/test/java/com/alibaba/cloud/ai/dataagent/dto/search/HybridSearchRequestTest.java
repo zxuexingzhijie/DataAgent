@@ -46,8 +46,7 @@ class HybridSearchRequestTest {
 			.build();
 
 		assertAll(() -> assertEquals(0.75, request.getSimilarityThreshold()),
-				() -> assertEquals(0.8, request.getVectorWeight()),
-				() -> assertEquals(0.2, request.getKeywordWeight()),
+				() -> assertEquals(0.8, request.getVectorWeight()), () -> assertEquals(0.2, request.getKeywordWeight()),
 				() -> assertTrue(request.isUseRerank()));
 	}
 

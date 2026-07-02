@@ -34,8 +34,7 @@ public class ZerodepDockerClientConnector implements DockerClientConnector {
 			.withDockerHost(host)
 			.withDockerTlsVerify(false)
 			.build();
-		ZerodepDockerHttpClient httpClient = new ZerodepDockerHttpClient.Builder()
-			.dockerHost(config.getDockerHost())
+		ZerodepDockerHttpClient httpClient = new ZerodepDockerHttpClient.Builder().dockerHost(config.getDockerHost())
 			.sslConfig(config.getSSLConfig())
 			.build();
 		return DockerClientImpl.getInstance(config, httpClient);

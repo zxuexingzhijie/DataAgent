@@ -78,8 +78,7 @@ public class DockerHostResolver {
 		if (hostname.startsWith("[") && hostname.endsWith("]")) {
 			hostname = hostname.substring(1, hostname.length() - 1);
 		}
-		return !("localhost".equalsIgnoreCase(hostname) || "127.0.0.1".equals(hostname)
-				|| "::1".equals(hostname));
+		return !("localhost".equalsIgnoreCase(hostname) || "127.0.0.1".equals(hostname) || "::1".equals(hostname));
 	}
 
 }

@@ -61,8 +61,8 @@ class DockerExecutorFactoryTest {
 		when(clientFactory.connect(candidates)).thenReturn(new DockerConnection(client, LOCAL));
 		when(hostResolver.isRemote(LOCAL)).thenReturn(false);
 
-		DockerCodePoolExecutorService executor =
-				new DockerExecutorFactory(hostResolver, clientFactory, imageManager).create(properties);
+		DockerCodePoolExecutorService executor = new DockerExecutorFactory(hostResolver, clientFactory, imageManager)
+			.create(properties);
 
 		verify(hostResolver).isRemote(LOCAL);
 		executor.close();
@@ -75,9 +75,7 @@ class DockerExecutorFactoryTest {
 		IllegalStateException imageFailure = new IllegalStateException("pull failed");
 		when(hostResolver.candidates(REMOTE, System.getProperty("os.name"))).thenReturn(candidates);
 		when(clientFactory.connect(candidates)).thenReturn(new DockerConnection(client, REMOTE));
-		org.mockito.Mockito.doThrow(imageFailure)
-			.when(imageManager)
-			.ensureAvailable(client, properties.getImageName());
+		org.mockito.Mockito.doThrow(imageFailure).when(imageManager).ensureAvailable(client, properties.getImageName());
 
 		IllegalStateException actual = assertThrows(IllegalStateException.class,
 				() -> new DockerExecutorFactory(hostResolver, clientFactory, imageManager).create(properties));

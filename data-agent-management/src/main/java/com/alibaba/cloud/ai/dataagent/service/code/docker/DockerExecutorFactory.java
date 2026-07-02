@@ -44,8 +44,7 @@ public class DockerExecutorFactory {
 		DockerClient client = connection.client();
 		try {
 			imageManager.ensureAvailable(client, properties.getImageName());
-			return new DockerCodePoolExecutorService(properties, client,
-					hostResolver.isRemote(connection.host()));
+			return new DockerCodePoolExecutorService(properties, client, hostResolver.isRemote(connection.host()));
 		}
 		catch (RuntimeException constructionFailure) {
 			closeAfterFailedConstruction(client, constructionFailure);

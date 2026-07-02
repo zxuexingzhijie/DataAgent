@@ -68,8 +68,7 @@ class DockerCodePoolExecutorServiceTest {
 		TaskResponse response = service.execTaskInContainer(new TaskRequest("print(1)", "", ""), "missing");
 
 		assertFalse(response.isSuccess());
-		assertEquals(
-				"An exception occurred while executing the task: Container 'missing' does not exist work dir",
+		assertEquals("An exception occurred while executing the task: Container 'missing' does not exist work dir",
 				response.exceptionMsg());
 		service.close();
 	}

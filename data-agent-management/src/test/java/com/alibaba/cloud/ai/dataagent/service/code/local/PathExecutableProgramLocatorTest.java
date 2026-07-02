@@ -37,8 +37,7 @@ class PathExecutableProgramLocatorTest {
 	void findFirst_secondCandidateExists_returnsSecondCandidate() throws IOException {
 		Path executable = Files.createFile(tempDirectory.resolve("python3"));
 		assertTrue(executable.toFile().setExecutable(true));
-		PathExecutableProgramLocator locator =
-				new PathExecutableProgramLocator(tempDirectory.toString(), false);
+		PathExecutableProgramLocator locator = new PathExecutableProgramLocator(tempDirectory.toString(), false);
 
 		assertEquals(Optional.of("python3"), locator.findFirst(List.of("missing", "python3")));
 	}
@@ -47,8 +46,7 @@ class PathExecutableProgramLocatorTest {
 	void findFirst_windowsExecutableSuffixExists_returnsProgramName() throws IOException {
 		Path executable = Files.createFile(tempDirectory.resolve("python.exe"));
 		assertTrue(executable.toFile().setExecutable(true));
-		PathExecutableProgramLocator locator =
-				new PathExecutableProgramLocator(tempDirectory.toString(), true);
+		PathExecutableProgramLocator locator = new PathExecutableProgramLocator(tempDirectory.toString(), true);
 
 		assertEquals(Optional.of("python"), locator.findFirst(List.of("python")));
 	}

@@ -58,8 +58,7 @@ public class DockerClientFactory {
 			}
 		}
 
-		throw new IllegalStateException("Failed to connect to Docker. Attempted hosts: " + candidateHosts,
-				lastFailure);
+		throw new IllegalStateException("Failed to connect to Docker. Attempted hosts: " + candidateHosts, lastFailure);
 	}
 
 	public record DockerConnection(DockerClient client, String host) {
