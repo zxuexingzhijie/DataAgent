@@ -152,6 +152,14 @@
           </el-tag>
         </template>
       </el-table-column>
+      <el-table-column label="当前使用" min-width="90px">
+        <template #default="scope">
+          <el-tag v-if="currentActiveDatasourceId === scope.row.id" type="info" round>
+            当前使用中
+          </el-tag>
+          <span v-else style="color: #999">-</span>
+        </template>
+      </el-table-column>
       <el-table-column label="状态" min-width="40px">
         <template #default="scope">
           <el-tag :type="scope.row.status === 'active' ? 'success' : 'info'" round>
@@ -267,7 +275,6 @@
               >
                 <el-option
                   v-for="type in datasourceTypes"
-                  :key="type.typeName"
                   :label="type.displayName"
                   :value="type.typeName"
                 />
@@ -277,7 +284,6 @@
         </el-row>
         <el-row :gutter="20">
           <el-col :span="12">
-            <div class="form-item">
               <label>主机地址 *</label>
               <el-input
                 v-model="newDatasource.host"
@@ -824,6 +830,8 @@
     setup(props) {
       // 当前Agent关联的数据源列表
       const datasource: Ref<Datasource[]> = ref([]);
+      // 当前被标记为“正在使用”的数据源 ID（用于区分“启用”和“当前使用中”的语义）
+      const currentActiveDatasourceId: Ref<number | null> = ref(null);
       const initStatus: Ref<boolean> = ref(false);
       const dialogVisible: Ref<boolean> = ref(false);
       const dialogActiveName: Ref<string> = ref('select');
@@ -899,6 +907,14 @@
 
             return datasourceItem;
           });
+          // 同步当前后端认为“正在使用”的数据源 id（若有）
+          try {
+            const used = await agentDatasourceService.getActiveAgentDatasource(props.agentId);
+            currentActiveDatasourceId.value = used?.datasource?.id ?? used?.datasourceId ?? null;
+          } catch (e) {
+            // 如果后端没有当前使用的数据源，则忽略
+            currentActiveDatasourceId.value = null;
+          }
         } catch (error) {
           ElMessage.error('加载当前智能体的数据源列表失败');
           console.error('Failed to load datasource:', error);
@@ -994,6 +1010,12 @@
           if (response.success) {
             ElMessage.success('操作成功！');
             row.status = active ? 'active' : 'inactive';
+            // 如果启用成功，则将此 datasource 标记为当前使用，否则如果刚禁用的是当前使用的则清除
+            if (active) {
+              currentActiveDatasourceId.value = row.id ?? null;
+            } else if (currentActiveDatasourceId.value === row.id) {
+              currentActiveDatasourceId.value = null;
+            }
           } else {
             ElMessage.error('操作失败！');
             console.error('Failed to change datasource:', response);
@@ -1637,6 +1659,7 @@
         saveOrUpdateForeignKey,
         deleteForeignKey,
         saveForeignKeyConfig,
+        currentActiveDatasourceId,
         editingForeignKey,
       };
     },
