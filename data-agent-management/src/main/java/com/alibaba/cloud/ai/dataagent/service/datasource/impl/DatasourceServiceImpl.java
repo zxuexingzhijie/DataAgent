@@ -130,6 +130,10 @@ public class DatasourceServiceImpl implements DatasourceService {
 				datasource.setPassword(existing.getPassword());
 			}
 		}
+		// 兜底：如果密码仍为 null（原有密码也为 null），设为空字符串
+		if (datasource.getPassword() == null) {
+			datasource.setPassword("");
+		}
 
 		if (datasource.getUsername() == null) {
 			datasource.setUsername("");
