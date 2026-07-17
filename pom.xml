@@ -142,7 +142,7 @@
         <version>${commons-io.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.atlassian.commonmark</groupId>
+        <groupId>org.commonmark</groupId>
         <artifactId>commonmark</artifactId>
         <version>${commonmark.version}</version>
       </dependency>

@@ -108,9 +108,9 @@
 </template>
 
 <script setup lang="ts">
-import hljs from 'highlight.js';
 import DOMPurify from 'dompurify';
 import { useEchartsRenderer } from '~/composables/useEchartsRenderer';
+import { hljs } from '~/utils/markdown/markdown-plugin-highlight';
 import type { GraphNodeResponse } from '~/services/graph/index';
 import type { ResultData } from '~/services/resultSet/index';
 import ChatResultSet from './ChatResultSet.vue';
