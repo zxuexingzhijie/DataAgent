@@ -267,8 +267,7 @@ public class AgentStartupInitialization implements ApplicationRunner, Disposable
 				return;
 			}
 
-			log.info("Found {} pending agent knowledge records, starting auto-embedding...",
-					pendingKnowledge.size());
+			log.info("Found {} pending agent knowledge records, starting auto-embedding...", pendingKnowledge.size());
 
 			int successCount = 0;
 			int failureCount = 0;

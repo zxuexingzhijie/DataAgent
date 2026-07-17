@@ -34,8 +34,8 @@ public class FeasibilityAssessmentDispatcher implements EdgeAction {
 			log.warn("Feasibility assessment result is missing, returning END");
 			return END;
 		}
-		FeasibilityAssessmentOutputDTO result = StateUtil.getObjectValue(state,
-				FEASIBILITY_ASSESSMENT_NODE_OUTPUT, FeasibilityAssessmentOutputDTO.class);
+		FeasibilityAssessmentOutputDTO result = StateUtil.getObjectValue(state, FEASIBILITY_ASSESSMENT_NODE_OUTPUT,
+				FeasibilityAssessmentOutputDTO.class);
 
 		if (result != null
 				&& result.getRequirementType() == FeasibilityAssessmentOutputDTO.RequirementType.DATA_ANALYSIS) {

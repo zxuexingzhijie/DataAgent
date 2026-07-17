@@ -70,9 +70,9 @@ public class FeasibilityAssessmentNode implements NodeAction {
 
 		Flux<GraphResponse<StreamingOutput>> generator = FluxUtil.createStreamingGeneratorWithMessages(this.getClass(),
 				state, "正在进行可行性评估...", "可行性评估完成！", llmOutput -> {
-						FeasibilityAssessmentOutputDTO assessmentResult = OUTPUT_CONVERTER.convert(llmOutput);
-						log.info("Feasibility assessment result: {}", assessmentResult);
-						return Map.of(FEASIBILITY_ASSESSMENT_NODE_OUTPUT, assessmentResult);
+					FeasibilityAssessmentOutputDTO assessmentResult = OUTPUT_CONVERTER.convert(llmOutput);
+					log.info("Feasibility assessment result: {}", assessmentResult);
+					return Map.of(FEASIBILITY_ASSESSMENT_NODE_OUTPUT, assessmentResult);
 				}, responseFlux);
 		return Map.of(FEASIBILITY_ASSESSMENT_NODE_OUTPUT, generator);
 	}

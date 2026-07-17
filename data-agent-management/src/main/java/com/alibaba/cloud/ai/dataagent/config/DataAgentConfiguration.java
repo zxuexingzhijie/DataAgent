@@ -309,10 +309,7 @@ public class DataAgentConfiguration implements DisposableBean {
 			.build();
 
 		SaverConfig saverConfig = SaverConfig.builder().register(checkpointSaver).build();
-		return CompileConfig.builder()
-			.saverConfig(saverConfig)
-			.interruptBefore(HUMAN_FEEDBACK_NODE)
-			.build();
+		return CompileConfig.builder().saverConfig(saverConfig).interruptBefore(HUMAN_FEEDBACK_NODE).build();
 	}
 
 	@Bean

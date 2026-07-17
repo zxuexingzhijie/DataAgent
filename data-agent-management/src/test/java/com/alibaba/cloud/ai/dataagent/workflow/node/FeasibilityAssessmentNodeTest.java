@@ -80,9 +80,8 @@ class FeasibilityAssessmentNodeTest {
 		state.updateState(Map.of(QUERY_ENHANCE_NODE_OUTPUT, dto, TABLE_RELATION_OUTPUT, createSimpleSchema(), EVIDENCE,
 				"用户表有id, name字段"));
 
-		when(llmService.callUser(anyString(), any()))
-			.thenReturn(Flux.just(ChatResponseUtil.createPureResponse(
-					"{\"requirementType\":\"DATA_ANALYSIS\",\"language\":\"zh-CN\",\"content\":\"查询用户数量\"}")));
+		when(llmService.callUser(anyString(), any())).thenReturn(Flux.just(ChatResponseUtil.createPureResponse(
+				"{\"requirementType\":\"DATA_ANALYSIS\",\"language\":\"zh-CN\",\"content\":\"查询用户数量\"}")));
 
 		Map<String, Object> result = feasibilityAssessmentNode.apply(state);
 
@@ -98,9 +97,8 @@ class FeasibilityAssessmentNodeTest {
 		state.updateState(
 				Map.of(QUERY_ENHANCE_NODE_OUTPUT, dto, TABLE_RELATION_OUTPUT, createSimpleSchema(), EVIDENCE, "无相关数据"));
 
-		when(llmService.callUser(anyString(), any()))
-			.thenReturn(Flux.just(ChatResponseUtil.createPureResponse(
-					"{\"requirementType\":\"FREE_CHAT\",\"language\":\"zh-CN\",\"content\":\"查询与数据库无关\"}")));
+		when(llmService.callUser(anyString(), any())).thenReturn(Flux.just(ChatResponseUtil.createPureResponse(
+				"{\"requirementType\":\"FREE_CHAT\",\"language\":\"zh-CN\",\"content\":\"查询与数据库无关\"}")));
 
 		Map<String, Object> result = feasibilityAssessmentNode.apply(state);
 
@@ -115,9 +113,8 @@ class FeasibilityAssessmentNodeTest {
 		state.updateState(Map.of(QUERY_ENHANCE_NODE_OUTPUT, dto, TABLE_RELATION_OUTPUT, createSimpleSchema(), EVIDENCE,
 				"evidence", MULTI_TURN_CONTEXT, "之前查询了用户列表"));
 
-		when(llmService.callUser(anyString(), any()))
-			.thenReturn(Flux.just(ChatResponseUtil.createPureResponse(
-					"{\"requirementType\":\"DATA_ANALYSIS\",\"language\":\"zh-CN\",\"content\":\"查询用户订单\"}")));
+		when(llmService.callUser(anyString(), any())).thenReturn(Flux.just(ChatResponseUtil.createPureResponse(
+				"{\"requirementType\":\"DATA_ANALYSIS\",\"language\":\"zh-CN\",\"content\":\"查询用户订单\"}")));
 
 		Map<String, Object> result = feasibilityAssessmentNode.apply(state);
 

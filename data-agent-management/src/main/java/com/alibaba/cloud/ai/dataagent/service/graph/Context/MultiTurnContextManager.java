@@ -94,8 +94,7 @@ public class MultiTurnContextManager {
 		}
 
 		String trimmedPlan = StringUtils.abbreviate(plan, properties.getMaxplanlength());
-		chatMemory.add(threadId,
-				List.of(new UserMessage(pending.userQuestion), new AssistantMessage(trimmedPlan)));
+		chatMemory.add(threadId, List.of(new UserMessage(pending.userQuestion), new AssistantMessage(trimmedPlan)));
 	}
 
 	/**

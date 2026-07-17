@@ -52,10 +52,10 @@ class DataAgentConfigurationTest {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		// MysqlSaver intentionally uses MySQL JSON functions. Register harmless H2
 		// aliases so this focused test can exercise the framework's MySQL write path.
-		jdbcTemplate.execute("CREATE ALIAS JSON_EXTRACT FOR '" + DataAgentConfigurationTest.class.getName()
-				+ ".jsonExtract'");
-		jdbcTemplate.execute("CREATE ALIAS JSON_UNQUOTE FOR '" + DataAgentConfigurationTest.class.getName()
-				+ ".jsonUnquote'");
+		jdbcTemplate
+			.execute("CREATE ALIAS JSON_EXTRACT FOR '" + DataAgentConfigurationTest.class.getName() + ".jsonExtract'");
+		jdbcTemplate
+			.execute("CREATE ALIAS JSON_UNQUOTE FOR '" + DataAgentConfigurationTest.class.getName() + ".jsonUnquote'");
 
 		CompileConfig compileConfig = new DataAgentConfiguration().nl2sqlGraphCompileConfig(new StateGraph(),
 				dataSource);
