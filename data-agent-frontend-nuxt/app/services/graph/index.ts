@@ -24,7 +24,9 @@
 export interface GraphRequest {
   /** 智能体 ID */
   agentId: string;
-  /** 会话线程 ID */
+  /** 聊天记忆会话 ID */
+  conversationId: string;
+  /** Graph 运行 ID，仅在人工反馈恢复时复用 */
   threadId?: string;
   /** 用户查询语句 */
   query: string;
@@ -100,6 +102,7 @@ class GraphService {
   ): Promise<() => void> {
     const params = new URLSearchParams();
     params.append("agentId", request.agentId);
+    params.append("conversationId", request.conversationId);
     if (request.threadId) {
       params.append("threadId", request.threadId);
     }

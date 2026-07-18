@@ -24,6 +24,7 @@ import com.alibaba.cloud.ai.graph.CompileConfig;
 import com.alibaba.cloud.ai.graph.OverAllState;
 import com.alibaba.cloud.ai.graph.RunnableConfig;
 import com.alibaba.cloud.ai.graph.StateGraph;
+import com.alibaba.cloud.ai.graph.checkpoint.BaseCheckpointSaver;
 import com.alibaba.cloud.ai.graph.exception.GraphRunnerException;
 import io.opentelemetry.api.trace.Span;
 import org.junit.jupiter.api.AfterEach;
@@ -60,6 +61,9 @@ class GraphServiceImplTest {
 	private LangfuseService langfuseReporter;
 
 	@Mock
+	private BaseCheckpointSaver checkpointSaver;
+
+	@Mock
 	private Span mockSpan;
 
 	private GraphServiceImpl graphService;
@@ -74,8 +78,8 @@ class GraphServiceImplTest {
 		when(mockStateGraph.compile(any())).thenReturn(compiledGraph);
 
 		CompileConfig compileConfig = CompileConfig.builder().build();
-		graphService = new GraphServiceImpl(mockStateGraph, compileConfig, executor, multiTurnContextManager,
-				langfuseReporter);
+		graphService = new GraphServiceImpl(mockStateGraph, compileConfig, checkpointSaver, executor,
+				multiTurnContextManager, langfuseReporter);
 
 		when(langfuseReporter.startLLMSpan(anyString(), any())).thenReturn(mockSpan);
 		when(mockSpan.isRecording()).thenReturn(true);
@@ -96,7 +100,16 @@ class GraphServiceImplTest {
 		String result = graphService.nl2sql("show all users", "1");
 
 		assertEquals("SELECT * FROM users", result);
-		verify(compiledGraph).invoke(anyMap(), any(RunnableConfig.class));
+		var configCaptor = org.mockito.ArgumentCaptor.forClass(RunnableConfig.class);
+		verify(compiledGraph).invoke(anyMap(), configCaptor.capture());
+		assertTrue(configCaptor.getValue().threadId().isPresent());
+		assertNotEquals(BaseCheckpointSaver.THREAD_ID_DEFAULT, configCaptor.getValue().threadId().orElseThrow());
+		try {
+			verify(checkpointSaver).release(configCaptor.getValue());
+		}
+		catch (Exception e) {
+			fail(e);
+		}
 	}
 
 	@Test
@@ -112,7 +125,11 @@ class GraphServiceImplTest {
 
 	@Test
 	void graphStreamProcess_newProcess_setsThreadIdIfMissing() {
-		GraphRequest request = GraphRequest.builder().agentId("1").query("test query").build();
+		GraphRequest request = GraphRequest.builder()
+			.agentId("1")
+			.conversationId("conversation-1")
+			.query("test query")
+			.build();
 
 		Sinks.Many<ServerSentEvent<GraphNodeResponse>> sink = Sinks.many().multicast().onBackpressureBuffer();
 
@@ -122,10 +139,11 @@ class GraphServiceImplTest {
 
 		assertNotNull(request.getThreadId());
 		assertFalse(request.getThreadId().isEmpty());
+		assertNotEquals(request.getConversationId(), request.getThreadId());
 	}
 
 	@Test
-	void graphStreamProcess_withThreadId_usesExistingThreadId() {
+	void graphStreamProcess_legacyThreadId_startsFreshRunAndKeepsConversationIdentity() {
 		GraphRequest request = GraphRequest.builder()
 			.agentId("1")
 			.threadId("existing-thread")
@@ -138,7 +156,30 @@ class GraphServiceImplTest {
 
 		graphService.graphStreamProcess(sink, request);
 
-		assertEquals("existing-thread", request.getThreadId());
+		assertEquals("existing-thread", request.getConversationId());
+		assertNotEquals("existing-thread", request.getThreadId());
+	}
+
+	@Test
+	void graphStreamProcess_humanFeedback_reusesInterruptedRunId() throws Exception {
+		GraphRequest request = GraphRequest.builder()
+			.agentId("1")
+			.conversationId("conversation-1")
+			.threadId("interrupted-run")
+			.query("test query")
+			.humanFeedback(true)
+			.humanFeedbackContent("approve")
+			.build();
+		RunnableConfig updatedConfig = RunnableConfig.builder().threadId("interrupted-run").build();
+		when(compiledGraph.updateState(any(RunnableConfig.class), anyMap())).thenReturn(updatedConfig);
+		when(compiledGraph.stream(isNull(), any(RunnableConfig.class))).thenReturn(Flux.empty());
+
+		graphService.graphStreamProcess(Sinks.many().multicast().onBackpressureBuffer(), request);
+
+		var configCaptor = org.mockito.ArgumentCaptor.forClass(RunnableConfig.class);
+		verify(compiledGraph).updateState(configCaptor.capture(), anyMap());
+		assertEquals("interrupted-run", configCaptor.getValue().threadId().orElseThrow());
+		assertEquals("interrupted-run", request.getThreadId());
 	}
 
 	@Test
@@ -157,6 +198,7 @@ class GraphServiceImplTest {
 	void stopStreamProcessing_existingThread_cleansUp() {
 		GraphRequest request = GraphRequest.builder()
 			.agentId("1")
+			.conversationId("conversation-to-stop")
 			.threadId("thread-to-stop")
 			.query("test query")
 			.build();
@@ -165,6 +207,7 @@ class GraphServiceImplTest {
 		when(compiledGraph.stream(anyMap(), any(RunnableConfig.class))).thenReturn(Flux.never());
 
 		graphService.graphStreamProcess(sink, request);
+		String runId = request.getThreadId();
 
 		try {
 			Thread.sleep(100);
@@ -173,8 +216,8 @@ class GraphServiceImplTest {
 			Thread.currentThread().interrupt();
 		}
 
-		graphService.stopStreamProcessing("thread-to-stop");
-		verify(multiTurnContextManager).discardPending("thread-to-stop");
+		graphService.stopStreamProcessing(runId);
+		verify(multiTurnContextManager).discardPending("conversation-to-stop");
 	}
 
 	@Test
