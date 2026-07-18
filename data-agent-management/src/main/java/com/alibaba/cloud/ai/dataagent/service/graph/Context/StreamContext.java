@@ -37,6 +37,8 @@ import java.util.Objects;
 @Data
 public class StreamContext {
 
+	private String conversationId;
+
 	private Disposable disposable;
 
 	private Sinks.Many<ServerSentEvent<GraphNodeResponse>> sink;
