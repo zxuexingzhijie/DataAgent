@@ -21,8 +21,10 @@ import com.alibaba.cloud.ai.dataagent.vo.GraphNodeResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
@@ -92,6 +94,18 @@ public class GraphController {
 				}
 			})
 			.doOnComplete(() -> log.info("Stream completed successfully, threadId: {}", request.getThreadId()));
+	}
+
+	@PostMapping("/stream/stop")
+	public ResponseEntity<Void> stopStream(@RequestParam("conversationId") String conversationId,
+			@RequestParam(value = "threadId", required = false) String threadId) {
+		if (StringUtils.hasText(threadId)) {
+			graphService.stopStreamProcessing(threadId);
+		}
+		else {
+			graphService.stopStreamProcessingByConversationId(conversationId);
+		}
+		return ResponseEntity.noContent().build();
 	}
 
 }

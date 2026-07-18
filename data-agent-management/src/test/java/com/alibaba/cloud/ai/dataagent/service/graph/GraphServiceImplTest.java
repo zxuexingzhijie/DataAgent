@@ -40,8 +40,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -218,6 +220,37 @@ class GraphServiceImplTest {
 
 		graphService.stopStreamProcessing(runId);
 		verify(multiTurnContextManager).discardPending("conversation-to-stop");
+	}
+
+	@Test
+	void stopStreamProcessingByConversationId_cancelsActiveGraphSubscription() throws Exception {
+		GraphRequest request = GraphRequest.builder()
+			.agentId("1")
+			.conversationId("conversation-to-cancel")
+			.query("test query")
+			.build();
+		CountDownLatch subscribed = new CountDownLatch(1);
+		CountDownLatch cancelled = new CountDownLatch(1);
+		when(compiledGraph.stream(anyMap(), any(RunnableConfig.class)))
+			.thenReturn(Flux.<com.alibaba.cloud.ai.graph.NodeOutput>never()
+				.doOnSubscribe(ignored -> subscribed.countDown())
+				.doOnCancel(cancelled::countDown));
+
+		graphService.graphStreamProcess(Sinks.many().multicast().onBackpressureBuffer(), request);
+
+		assertTrue(subscribed.await(2, TimeUnit.SECONDS));
+		graphService.stopStreamProcessingByConversationId("conversation-to-cancel");
+
+		assertTrue(cancelled.await(2, TimeUnit.SECONDS));
+		verify(multiTurnContextManager).discardPending("conversation-to-cancel");
+		var configCaptor = org.mockito.ArgumentCaptor.forClass(RunnableConfig.class);
+		try {
+			verify(checkpointSaver).release(configCaptor.capture());
+		}
+		catch (Exception e) {
+			fail(e);
+		}
+		assertEquals(request.getThreadId(), configCaptor.getValue().threadId().orElseThrow());
 	}
 
 	@Test

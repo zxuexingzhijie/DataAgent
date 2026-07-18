@@ -92,14 +92,14 @@ class GraphService {
    * @param {(response: GraphNodeResponse) => Promise<void>} onMessage - 收到消息时的回调
    * @param {(error: Error) => Promise<void>} [onError] - 发生错误时的回调
    * @param {() => Promise<void>} [onComplete] - 搜索完成时的回调
-   * @returns {Promise<() => void>} 返回一个用于手动关闭流连接的函数
+   * @returns {Promise<(cancelRun?: boolean) => Promise<void>>} 返回一个用于关闭流连接并按需取消后端任务的函数
    */
   async streamSearch(
     request: GraphRequest,
     onMessage: (response: GraphNodeResponse) => Promise<void>,
     onError?: (error: Error) => Promise<void>,
     onComplete?: () => Promise<void>,
-  ): Promise<() => void> {
+  ): Promise<(cancelRun?: boolean) => Promise<void>> {
     const params = new URLSearchParams();
     params.append("agentId", request.agentId);
     params.append("conversationId", request.conversationId);
@@ -119,9 +119,12 @@ class GraphService {
 
     const eventSource = new EventSource(url);
 
+    let latestThreadId = request.threadId;
+
     eventSource.onmessage = async (event) => {
       try {
         const nodeResponse: GraphNodeResponse = JSON.parse(event.data);
+        latestThreadId = nodeResponse.threadId || latestThreadId;
         console.log(
           `Node: ${nodeResponse.nodeName}, message: ${nodeResponse.text}, type: ${nodeResponse.textType}`,
         );
@@ -174,8 +177,22 @@ class GraphService {
       }
     });
 
-    return () => {
+    return async (cancelRun = false) => {
+      isCompleted = true;
       eventSource.close();
+      if (!cancelRun) return;
+
+      const stopParams = new URLSearchParams({
+        conversationId: request.conversationId,
+      });
+      if (latestThreadId) stopParams.append("threadId", latestThreadId);
+      const response = await fetch(
+        `${API_BASE_URL}/stream/stop?${stopParams.toString()}`,
+        { method: "POST", keepalive: true },
+      );
+      if (!response.ok) {
+        throw new Error(`Failed to stop graph run: HTTP ${response.status}`);
+      }
     };
   }
 }

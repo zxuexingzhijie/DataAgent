@@ -128,7 +128,6 @@ public class GraphServiceImpl implements GraphService {
 		log.info("Stopping stream processing for threadId: {}", threadId);
 		StreamContext context = streamContextMap.remove(threadId);
 		multiTurnContextManager.discardPending(context != null ? context.getConversationId() : threadId);
-		releaseCheckpoint(RunnableConfig.builder().threadId(threadId).build());
 		if (context != null) {
 			// 客户端断开，结束 Langfuse span
 			if (context.getSpan() != null && context.getSpan().isRecording()) {
@@ -137,6 +136,21 @@ public class GraphServiceImpl implements GraphService {
 			context.cleanup();
 			log.info("Cleaned up stream context for threadId: {}", threadId);
 		}
+		// Dispose the graph subscription before releasing its checkpoint so a
+		// cancelled run cannot write another checkpoint after the release.
+		releaseCheckpoint(RunnableConfig.builder().threadId(threadId).build());
+	}
+
+	@Override
+	public void stopStreamProcessingByConversationId(String conversationId) {
+		if (!StringUtils.hasText(conversationId)) {
+			return;
+		}
+		streamContextMap.forEach((threadId, context) -> {
+			if (conversationId.equals(context.getConversationId())) {
+				stopStreamProcessing(threadId);
+			}
+		});
 	}
 
 	private void handleNewProcess(GraphRequest graphRequest) {

@@ -112,4 +112,20 @@ class GraphControllerTest {
 		assertNull(captured.getThreadId());
 	}
 
+	@Test
+	void stopStream_withRunId_stopsExactGraphRun() {
+		graphController.stopStream("conversation-4", "run-4");
+
+		verify(graphService).stopStreamProcessing("run-4");
+		verify(graphService, never()).stopStreamProcessingByConversationId(anyString());
+	}
+
+	@Test
+	void stopStream_withoutRunId_stopsConversationRun() {
+		graphController.stopStream("conversation-5", null);
+
+		verify(graphService).stopStreamProcessingByConversationId("conversation-5");
+		verify(graphService, never()).stopStreamProcessing(anyString());
+	}
+
 }

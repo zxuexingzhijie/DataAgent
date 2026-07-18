@@ -325,7 +325,6 @@ export const useChatStore = defineStore('chat', () => {
 		);
 		currentMessages.value.push(saved);
 
-		const sessionState = getSessionState(currentSession.value.id);
 		const request: GraphRequest = {
 			agentId: String(currentAgentId.value || ''),
 			conversationId: currentSession.value.id,
@@ -571,7 +570,8 @@ export const useChatStore = defineStore('chat', () => {
 				}
 
 				currentNodeName = null;
-				closeStream();
+				await closeStream();
+				sessionState.closeStream = null;
 				if (currentSession.value?.id === sessionId) {
 					currentMessages.value =
 						await chatService.getSessionMessages(sessionId);
@@ -589,7 +589,11 @@ export const useChatStore = defineStore('chat', () => {
 		const sessionState = getSessionState(sessionId);
 		if (!sessionState.closeStream) return;
 
-		sessionState.closeStream();
+		try {
+			await sessionState.closeStream(true);
+		} catch (error) {
+			console.error('停止后端图任务失败:', error);
+		}
 		sessionState.closeStream = null;
 		sessionState.isStreaming = false;
 		sessionState.nodeBlocks = [];
