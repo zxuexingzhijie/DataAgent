@@ -13,35 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cloud.ai.dataagent.dto;
+package com.alibaba.cloud.ai.dataagent.enums;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+public enum GraphEventType {
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-public class GraphRequest {
+	NODE_OUTPUT,
 
-	private String agentId;
-
-	/** Stable chat-memory conversation identifier. */
-	private String conversationId;
-
-	/** Graph run identifier. Reused only when resuming human feedback. */
-	private String threadId;
-
-	private String query;
-
-	private boolean humanFeedback;
-
-	private String humanFeedbackContent;
-
-	private boolean rejectedPlan;
-
-	private boolean nl2sqlOnly;
+	FINAL_ANSWER
 
 }
