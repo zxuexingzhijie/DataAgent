@@ -264,6 +264,12 @@ public class GraphServiceImpl implements GraphService {
 				langfuseReporter.endSpanSuccess(context.getSpan(), threadId, context.getCollectedOutput());
 			}
 			if (context.getSink() != null && context.getSink().currentSubscriberCount() > 0) {
+				if (StringUtils.hasText(context.getFinalAnswer())) {
+					context.getSink()
+						.tryEmitNext(ServerSentEvent
+							.builder(GraphNodeResponse.finalAnswer(agentId, threadId, context.getFinalAnswer()))
+							.build());
+				}
 				context.getSink()
 					.tryEmitNext(ServerSentEvent.builder(GraphNodeResponse.complete(agentId, threadId))
 						.event(STREAM_EVENT_COMPLETE)
@@ -279,6 +285,14 @@ public class GraphServiceImpl implements GraphService {
 	 */
 	private void handleNodeOutput(GraphRequest request, NodeOutput output) {
 		log.debug("Received output: {}", output.getClass().getSimpleName());
+		StreamContext context = streamContextMap.get(request.getThreadId());
+		if (context != null) {
+			output.state()
+				.value(FINAL_ANSWER)
+				.map(Object::toString)
+				.filter(StringUtils::hasText)
+				.ifPresent(context::setFinalAnswer);
+		}
 		if (output instanceof StreamingOutput streamingOutput) {
 			handleStreamNodeOutput(request, streamingOutput);
 		}
@@ -321,12 +335,15 @@ public class GraphServiceImpl implements GraphService {
 		// 文本标记符号不返回给前端
 		if (!isTypeSign) {
 			context.appendOutput(chunk);
+			StreamContext.StepIdentity stepIdentity = context.resolveStep(node);
 			if (PlannerNode.class.getSimpleName().equals(node)) {
 				multiTurnContextManager.appendPlannerChunk(threadId, chunk);
 			}
 			GraphNodeResponse response = GraphNodeResponse.builder()
 				.agentId(request.getAgentId())
 				.threadId(threadId)
+				.stepId(stepIdentity.stepId())
+				.attempt(stepIdentity.attempt())
 				.nodeName(node)
 				.text(chunk)
 				.textType(textType)
