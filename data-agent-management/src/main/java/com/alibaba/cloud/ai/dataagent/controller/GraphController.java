@@ -78,7 +78,8 @@ public class GraphController {
 			if (STREAM_EVENT_COMPLETE.equals(sse.event()) || STREAM_EVENT_ERROR.equals(sse.event())) {
 				return true;
 			}
-			// Protocol events carry state transitions in eventType and do not require display text.
+			// Protocol events carry state transitions in eventType and do not require
+			// display text.
 			if (sse.data() != null && sse.data().getEventType() != null
 					&& !GraphEventType.NODE_OUTPUT.equals(sse.data().getEventType())) {
 				return true;

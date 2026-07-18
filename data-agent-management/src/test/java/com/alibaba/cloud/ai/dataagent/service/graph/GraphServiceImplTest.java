@@ -210,11 +210,13 @@ class GraphServiceImplTest {
 			.build();
 
 		graphService.graphStreamProcess(sink, request);
-		List<GraphNodeResponse> responses = responsesFuture.get(Duration.ofSeconds(2).toMillis(), TimeUnit.MILLISECONDS);
+		List<GraphNodeResponse> responses = responsesFuture.get(Duration.ofSeconds(2).toMillis(),
+				TimeUnit.MILLISECONDS);
 
-		assertTrue(responses.stream()
-			.anyMatch(response -> "HUMAN_FEEDBACK_REQUIRED".equals(response.getEventType().name())),
-			responses.toString());
+		assertTrue(
+				responses.stream()
+					.anyMatch(response -> "HUMAN_FEEDBACK_REQUIRED".equals(response.getEventType().name())),
+				responses.toString());
 		verify(checkpointSaver, never()).release(any(RunnableConfig.class));
 	}
 
@@ -239,11 +241,13 @@ class GraphServiceImplTest {
 			.build();
 
 		graphService.graphStreamProcess(sink, request);
-		List<GraphNodeResponse> responses = responsesFuture.get(Duration.ofSeconds(2).toMillis(), TimeUnit.MILLISECONDS);
+		List<GraphNodeResponse> responses = responsesFuture.get(Duration.ofSeconds(2).toMillis(),
+				TimeUnit.MILLISECONDS);
 
-		assertFalse(responses.stream()
-			.anyMatch(response -> "HUMAN_FEEDBACK_REQUIRED".equals(response.getEventType().name())),
-			responses.toString());
+		assertFalse(
+				responses.stream()
+					.anyMatch(response -> "HUMAN_FEEDBACK_REQUIRED".equals(response.getEventType().name())),
+				responses.toString());
 		verify(checkpointSaver).release(any(RunnableConfig.class));
 	}
 
@@ -272,11 +276,13 @@ class GraphServiceImplTest {
 			.build();
 
 		graphService.graphStreamProcess(sink, request);
-		List<GraphNodeResponse> responses = responsesFuture.get(Duration.ofSeconds(2).toMillis(), TimeUnit.MILLISECONDS);
+		List<GraphNodeResponse> responses = responsesFuture.get(Duration.ofSeconds(2).toMillis(),
+				TimeUnit.MILLISECONDS);
 
-		assertTrue(responses.stream()
-			.anyMatch(response -> GraphEventType.HUMAN_FEEDBACK_REQUIRED.equals(response.getEventType())),
-			responses.toString());
+		assertTrue(
+				responses.stream()
+					.anyMatch(response -> GraphEventType.HUMAN_FEEDBACK_REQUIRED.equals(response.getEventType())),
+				responses.toString());
 		verify(checkpointSaver, never()).release(any(RunnableConfig.class));
 	}
 

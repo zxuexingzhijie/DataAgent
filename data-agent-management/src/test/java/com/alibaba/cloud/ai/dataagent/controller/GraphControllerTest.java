@@ -120,12 +120,14 @@ class GraphControllerTest {
 	void streamSearch_protocolEventWithoutText_isNotFilteredOut() {
 		doAnswer(invocation -> {
 			Sinks.Many<ServerSentEvent<GraphNodeResponse>> sink = invocation.getArgument(0);
-			sink.tryEmitNext(ServerSentEvent.builder(GraphNodeResponse.builder()
-				.agentId("agent-1")
-				.threadId("run-1")
-				.eventType(GraphEventType.HUMAN_FEEDBACK_REQUIRED)
-				.textType(TextType.TEXT)
-				.build()).build());
+			sink.tryEmitNext(ServerSentEvent
+				.builder(GraphNodeResponse.builder()
+					.agentId("agent-1")
+					.threadId("run-1")
+					.eventType(GraphEventType.HUMAN_FEEDBACK_REQUIRED)
+					.textType(TextType.TEXT)
+					.build())
+				.build());
 			sink.tryEmitComplete();
 			return null;
 		}).when(graphService).graphStreamProcess(any(Sinks.Many.class), any(GraphRequest.class));
