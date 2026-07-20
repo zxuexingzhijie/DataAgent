@@ -166,12 +166,13 @@ public class AgentVectorStoreServiceImpl implements AgentVectorStoreService {
 	public Boolean deleteDocumentsByMetadata(String agentId, Map<String, Object> metadata) {
 		Assert.hasText(agentId, "AgentId cannot be empty.");
 		Assert.notNull(metadata, "Metadata cannot be null.");
-		// 添加agentId元数据过滤条件, 用于删除指定agentId下的所有数据，因为metadata中用户调用可能忘记添加agentId
-		metadata.put(Constant.AGENT_ID, agentId);
-		String filterExpression = buildFilterExpressionString(metadata);
+		// 在内部副本中补充 agentId，兼容 Map.of 等不可变入参，也避免修改调用方状态
+		Map<String, Object> scopedMetadata = new HashMap<>(metadata);
+		scopedMetadata.put(Constant.AGENT_ID, agentId);
+		String filterExpression = buildFilterExpressionString(scopedMetadata);
 
 		if (vectorStore instanceof MetadataAwareSimpleVectorStore simpleVectorStore) {
-			int deleted = simpleVectorStore.deleteByMetadata(metadata);
+			int deleted = simpleVectorStore.deleteByMetadata(scopedMetadata);
 			log.info("Deleted {} documents for agent {} from SimpleVectorStore", deleted, agentId);
 		}
 		else if (vectorStore instanceof SimpleVectorStore) {

@@ -171,6 +171,18 @@ class AgentVectorStoreServiceImplTest {
 	}
 
 	@Test
+	void deleteDocumentsByMetadata_agentScoped_acceptsImmutableMetadataWithoutMutation() {
+		Map<String, Object> metadata = Map.of("knowledgeId", 7);
+
+		Boolean result = service.deleteDocumentsByMetadata("1", metadata);
+
+		assertTrue(result);
+		assertEquals(Map.of("knowledgeId", 7), metadata);
+		verify(vectorStore)
+			.delete(argThat((String filter) -> filter.contains("knowledgeId") && filter.contains("agentId")));
+	}
+
+	@Test
 	void getDocumentsForAgent_defaultParams() {
 		when(dynamicFilterService.buildDynamicFilter(anyString(), anyString())).thenReturn(null);
 
