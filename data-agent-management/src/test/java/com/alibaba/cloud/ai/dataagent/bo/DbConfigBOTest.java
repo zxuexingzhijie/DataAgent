@@ -1,5 +1,5 @@
 /*
- * Copyright 2024-2026 the original author or authors.
+ * Copyright 2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,29 +15,21 @@
  */
 package com.alibaba.cloud.ai.dataagent.bo;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import org.junit.jupiter.api.Test;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class DbConfigBO {
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
-	private String schema;
+class DbConfigBOTest {
 
-	private String url;
+	@Test
+	void toString_excludesPassword() {
+		DbConfigBO config = DbConfigBO.builder()
+			.url("jdbc:test")
+			.username("user")
+			.password("sensitive-password")
+			.build();
 
-	private String username;
-
-	@ToString.Exclude
-	private String password;
-
-	private String connectionType;
-
-	private String dialectType;
+		assertFalse(config.toString().contains("sensitive-password"));
+	}
 
 }

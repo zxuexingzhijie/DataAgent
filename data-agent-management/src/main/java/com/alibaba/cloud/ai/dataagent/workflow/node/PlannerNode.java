@@ -70,12 +70,12 @@ public class PlannerNode implements NodeAction {
 	private Flux<ChatResponse> handlePlanGenerate(OverAllState state) {
 		// 获取查询增强节点的输出
 		String canonicalQuery = StateUtil.getCanonicalQuery(state);
-		log.info("Using processed query for planning: {}", canonicalQuery);
+		log.debug("Using processed query for planning: {}", canonicalQuery);
 
 		// 检查是否为修复模式
 		String validationError = StateUtil.getStringValue(state, PLAN_VALIDATION_ERROR, null);
 		if (validationError != null) {
-			log.info("Regenerating plan with user feedback: {}", validationError);
+			log.debug("Regenerating plan with user feedback: {}", validationError);
 		}
 		else {
 			log.info("Generating initial plan");

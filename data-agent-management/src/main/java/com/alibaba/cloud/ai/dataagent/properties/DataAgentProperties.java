@@ -73,9 +73,10 @@ public class DataAgentProperties {
 	private boolean enableSqlResultChart = true;
 
 	/**
-	 * 执行SQL结果图表化超时时间，默认3000ms
+	 * 执行SQL结果图表化超时时间，默认15000ms。结构化输出可能触发 Spring AI
+	 * 自动修复重试，过短的超时会取消仍在运行的模型请求。
 	 */
-	private Long enrichSqlResultTimeout = 3000L;
+	private Long enrichSqlResultTimeout = 15000L;
 
 	@Getter
 	@Setter

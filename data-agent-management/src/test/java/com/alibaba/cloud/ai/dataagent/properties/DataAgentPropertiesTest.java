@@ -13,31 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cloud.ai.dataagent.bo;
+package com.alibaba.cloud.ai.dataagent.properties;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class DbConfigBO {
+import org.junit.jupiter.api.Test;
 
-	private String schema;
+class DataAgentPropertiesTest {
 
-	private String url;
+	@Test
+	void defaultChartTimeoutAllowsStructuredOutputRepair() {
+		DataAgentProperties properties = new DataAgentProperties();
 
-	private String username;
-
-	@ToString.Exclude
-	private String password;
-
-	private String connectionType;
-
-	private String dialectType;
+		assertEquals(15000L, properties.getEnrichSqlResultTimeout());
+	}
 
 }

@@ -138,7 +138,7 @@ public class ModelConfigOpsService {
 		if (!StringUtils.hasText(response)) {
 			throw new RuntimeException("模型返回内容为空");
 		}
-		log.info("Chat Model test passed. Response: {}", response);
+		log.debug("Chat Model test passed. Response: {}", response);
 	}
 
 	private void testEmbeddingModel(ModelConfigDTO config) {
