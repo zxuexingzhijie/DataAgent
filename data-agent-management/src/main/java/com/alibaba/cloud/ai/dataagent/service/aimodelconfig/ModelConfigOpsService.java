@@ -18,9 +18,6 @@ package com.alibaba.cloud.ai.dataagent.service.aimodelconfig;
 import com.alibaba.cloud.ai.dataagent.enums.ModelType;
 import com.alibaba.cloud.ai.dataagent.dto.ModelConfigDTO;
 import com.alibaba.cloud.ai.dataagent.entity.ModelConfig;
-import com.alibaba.cloud.ai.dataagent.util.JsonUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.model.ChatModel;
@@ -39,8 +36,6 @@ public class ModelConfigOpsService {
 	private final DynamicModelFactory modelFactory;
 
 	private final AiModelRegistry aiModelRegistry;
-
-	private final ObjectMapper objectMapper = JsonUtil.getObjectMapper();
 
 	/**
 	 * 专门处理：更新配置并热刷新的聚合逻辑
@@ -118,12 +113,8 @@ public class ModelConfigOpsService {
 			}
 		}
 		catch (Exception e) {
-			try {
-				log.error("Failed to test model connection. Config: {}", objectMapper.writeValueAsString(config), e);
-			}
-			catch (JsonProcessingException e1) {
-				log.error("Failed to convert config to JSON. Config: {}", config, e1);
-			}
+			log.error("Failed to test model connection. Type: {}, provider: {}, model: {}", config.getModelType(),
+					config.getProvider(), config.getModelName(), e);
 			// 重新抛出异常，让 Controller 捕获并展示给前端
 			// 如果是 OpenAiHttpException，通常包含具体的 API 错误信息
 			throw new RuntimeException(parseErrorMessage(e));

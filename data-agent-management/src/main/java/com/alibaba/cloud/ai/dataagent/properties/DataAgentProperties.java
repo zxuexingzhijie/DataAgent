@@ -16,7 +16,6 @@
 package com.alibaba.cloud.ai.dataagent.properties;
 
 import com.alibaba.cloud.ai.dataagent.constant.Constant;
-import com.alibaba.cloud.ai.dataagent.service.llm.LlmServiceEnum;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -25,8 +24,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Setter
 @ConfigurationProperties(prefix = Constant.PROJECT_PROPERTIES_PREFIX)
 public class DataAgentProperties {
-
-	private LlmServiceEnum llmServiceType = LlmServiceEnum.STREAM;
 
 	/**
 	 * spring.ai.alibaba.data-agent.embedding-batch.encoding-type=cl100k_base

@@ -202,18 +202,18 @@ class AgentVectorStoreServiceImplTest {
 	}
 
 	@Test
-	void hasDocuments_withDocs_returnsTrue() {
+	void hasSchemaDocuments_withDocs_returnsTrue() {
 		Document doc = new Document("content", Map.of("agentId", "1"));
 		when(vectorStore.similaritySearch(any(SearchRequest.class))).thenReturn(List.of(doc));
 
-		assertTrue(service.hasDocuments("1"));
+		assertTrue(service.hasSchemaDocuments("1"));
 	}
 
 	@Test
-	void hasDocuments_noDocs_returnsFalse() {
+	void hasSchemaDocuments_noDocs_returnsFalse() {
 		when(vectorStore.similaritySearch(any(SearchRequest.class))).thenReturn(Collections.emptyList());
 
-		assertFalse(service.hasDocuments("1"));
+		assertFalse(service.hasSchemaDocuments("1"));
 	}
 
 }

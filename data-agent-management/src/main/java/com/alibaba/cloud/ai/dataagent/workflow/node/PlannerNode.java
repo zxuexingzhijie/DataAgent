@@ -54,7 +54,7 @@ public class PlannerNode implements NodeAction {
 		// 是否为NL2SQL模式
 		Boolean onlyNl2sql = state.value(IS_ONLY_NL2SQL, false);
 
-		Flux<ChatResponse> flux = onlyNl2sql ? handleNl2SqlOnly() : handlePlanGenerate(state);
+		Flux<ChatResponse> flux = onlyNl2sql ? handleNl2SqlOnly(state) : handlePlanGenerate(state);
 
 		Flux<ChatResponse> chatResponseFlux = Flux.concat(
 				Flux.just(ChatResponseUtil.createPureResponse(TextType.JSON.getStartSign())), flux,
@@ -103,8 +103,8 @@ public class PlannerNode implements NodeAction {
 		return llmService.callUser(plannerPrompt);
 	}
 
-	private Flux<ChatResponse> handleNl2SqlOnly() {
-		return Flux.just(ChatResponseUtil.createPureResponse(Plan.nl2SqlPlan()));
+	private Flux<ChatResponse> handleNl2SqlOnly(OverAllState state) {
+		return Flux.just(ChatResponseUtil.createPureResponse(Plan.nl2SqlPlan(StateUtil.getCanonicalQuery(state))));
 	}
 
 	private String buildUserPrompt(String input, String validationError, OverAllState state) {
