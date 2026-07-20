@@ -109,18 +109,8 @@ class AbstractDBConnectionPoolTest {
 	@Test
 	void getConnection_differentPasswordsWithSameHash_doNotShareDataSource() throws Exception {
 		String url = String.format(H2_URL, nextDbId());
-		DbConfigBO first = DbConfigBO.builder()
-			.url(url)
-			.username("sa")
-			.password("Aa")
-			.connectionType("h2")
-			.build();
-		DbConfigBO second = DbConfigBO.builder()
-			.url(url)
-			.username("sa")
-			.password("BB")
-			.connectionType("h2")
-			.build();
+		DbConfigBO first = DbConfigBO.builder().url(url).username("sa").password("Aa").connectionType("h2").build();
+		DbConfigBO second = DbConfigBO.builder().url(url).username("sa").password("BB").connectionType("h2").build();
 		assertEquals(first.getPassword().hashCode(), second.getPassword().hashCode());
 
 		try (Connection ignored = pool.getConnection(first)) {
