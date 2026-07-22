@@ -18,6 +18,7 @@ package com.alibaba.cloud.ai.dataagent.service.aimodelconfig;
 import com.alibaba.cloud.ai.dataagent.dto.ModelConfigDTO;
 import com.alibaba.cloud.ai.dataagent.entity.ModelConfig;
 import com.alibaba.cloud.ai.dataagent.enums.ModelType;
+import com.alibaba.cloud.ai.dataagent.properties.DataAgentProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,7 +47,8 @@ class ModelConfigOpsServiceTest {
 
 	@BeforeEach
 	void setUp() {
-		service = new ModelConfigOpsService(modelConfigDataService, modelFactory, aiModelRegistry);
+		service = new ModelConfigOpsService(modelConfigDataService, modelFactory, aiModelRegistry,
+				new EmbeddingModelCompatibilityValidator(new DataAgentProperties()));
 	}
 
 	@Test
